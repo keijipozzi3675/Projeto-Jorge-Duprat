@@ -21,7 +21,22 @@ hosting="${SITES_PROJECT_ROOT}/dist/.openai/hosting.json"
 
 node --input-type=module - "${worker}" "${hosting}" <<'NODE'
 import { readFile } from "node:fs/promises";
+import { registerHooks } from "node:module";
 import { pathToFileURL } from "node:url";
+
+// Native Cloudflare binding access is externalized by vinext and resolved by
+// workerd in production. Stub only that module during this Node shape check.
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier === "cloudflare:workers") {
+      return {
+        shortCircuit: true,
+        url: "data:text/javascript,export const env = {};",
+      };
+    }
+    return nextResolve(specifier, context);
+  },
+});
 
 const [workerPath, hostingPath] = process.argv.slice(2);
 JSON.parse(await readFile(hostingPath, "utf8"));
