@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import InstitutionalPage from "../institutional-page";
+import { teamMembers } from "../team-data";
+
+export const metadata: Metadata = {
+  title: "Equipe | Portal Duprat",
+  description: "Áreas e profissionais que fazem a E.E. Jorge Duprat Figueiredo.",
+};
 
 const areas = [
   { code: "DI", title: "Direção escolar", type: "Liderança", text: "Coordena o projeto pedagógico, a organização da unidade e a relação com a comunidade." },
@@ -11,28 +19,23 @@ const areas = [
 
 export default function EquipePage() {
   return (
-    <main className="subpage">
-      <header className="simple-header">
-        <div className="shell">
-          <Link href="/" className="brand" aria-label="Voltar ao Portal Duprat">
-            <span className="brand-mark"><span>JD</span></span>
-            <span className="brand-copy"><strong>Portal Duprat</strong><small>Escola Estadual</small></span>
-          </Link>
-          <Link href="/" className="simple-back">← Voltar ao portal</Link>
-        </div>
-      </header>
-      <section className="subpage-hero">
-        <div className="shell">
-          <span className="section-label">QUEM FAZ A ESCOLA</span>
-          <h1>Nossa equipe escolar</h1>
-          <p>Educação é um trabalho coletivo. Conheça as áreas responsáveis por acolher, orientar e construir a rotina da E.E. Jorge Duprat Figueiredo.</p>
-        </div>
-      </section>
-      <section className="shell team-content">
+    <InstitutionalPage active="equipe" eyebrow="Quem faz a escola" title="Nossa equipe escolar" intro="Educação é um trabalho coletivo. Conheça as áreas responsáveis por acolher, orientar e construir a rotina da E.E. Jorge Duprat Figueiredo.">
+      <section className="shell team-content institutional-team-content">
         <div className="team-intro">
-          <div><h2>Uma equipe, muitos caminhos para apoiar</h2><p>Os nomes e horários de atendimento poderão ser atualizados pela direção na Área de gestão, sem necessidade de alterar o código do portal.</p></div>
+          <div><h2>Uma equipe, muitos caminhos para apoiar</h2><p>Direção, coordenação, professores, secretaria e equipe de apoio trabalham de forma integrada para atender a comunidade escolar.</p></div>
           <a className="button button-primary" href="mailto:e043928a@educacao.sp.gov.br">Falar com a escola</a>
         </div>
+        <div className="team-section-heading"><span className="section-label">GESTÃO ESCOLAR</span><h2>Conheça os profissionais</h2><p>Selecione uma pessoa para conhecer sua função e sua área de atuação.</p></div>
+        <div className="team-member-grid">
+          {teamMembers.map((member) => (
+            <Link className="team-member-card" href={`/equipe/${member.slug}`} key={member.slug}>
+              <span className="team-avatar">{member.code}</span>
+              <span className="team-member-copy"><small>{member.area}</small><strong>{member.name}</strong><span>{member.role}</span></span>
+              <span className="team-member-arrow" aria-hidden="true">→</span>
+            </Link>
+          ))}
+        </div>
+        <div className="team-section-heading team-areas-heading"><span className="section-label">TRABALHO COLETIVO</span><h2>Áreas da equipe</h2></div>
         <div className="team-grid">
           {areas.map((area) => (
             <article className="team-card" key={area.code}>
@@ -44,6 +47,6 @@ export default function EquipePage() {
           ))}
         </div>
       </section>
-    </main>
+    </InstitutionalPage>
   );
 }
