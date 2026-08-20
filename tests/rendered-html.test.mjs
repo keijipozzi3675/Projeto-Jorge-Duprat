@@ -98,3 +98,24 @@ test("renders compact detail pages with global help tools", async () => {
     assert.match(html, /Acessibilidade/i, `${path}: acessibilidade global`);
   }
 });
+
+test("keeps the GPT key on the server and reports missing configuration safely", async () => {
+  const worker = await loadWorker("chat-api");
+  const response = await worker.fetch(
+    new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        origin: "http://localhost",
+      },
+      body: JSON.stringify({ messages: [{ role: "user", content: "Olá" }] }),
+    }),
+    env,
+    context,
+  );
+
+  assert.equal(response.status, 503);
+  const payload = await response.json();
+  assert.match(payload.error, /configuração segura/i);
+  assert.doesNotMatch(JSON.stringify(payload), /sk-[a-z0-9]/i);
+});

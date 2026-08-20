@@ -23,6 +23,7 @@ const defaultSuggestions: ChatSuggestion[] = [
   { label: "Biblioteca", question: "Como conhecer e reservar um livro?" },
   { label: "Avisos", question: "Onde vejo os avisos da escola?" },
   { label: "Esportes", question: "Onde vejo os campeonatos e eventos?" },
+  { label: "Um segredo?", question: "Existe alguma fase secreta no portal? Me dê apenas a primeira pista." },
 ];
 
 const topicSuggestions: Partial<Record<ChatTopic, ChatSuggestion[]>> = {
@@ -92,6 +93,12 @@ const topicSuggestions: Partial<Record<ChatTopic, ChatSuggestion[]>> = {
     { label: "Avisos", question: "Onde vejo os avisos da escola?" },
     { label: "Biblioteca", question: "Como conhecer e reservar um livro?" },
   ],
+  secret: [
+    { label: "Primeira pista", question: "Me dê a primeira pista da fase secreta, sem revelar a sequência." },
+    { label: "Mais uma pista", question: "Quero a segunda pista da fase secreta." },
+    { label: "Pista final", question: "Me dê a última pista antes da sequência completa." },
+    { label: "Revelar sequência", question: "Qual é a sequência completa para liberar a fase secreta?" },
+  ],
 };
 
 export const GLOBAL_CHAT_EVENT = "duprat:open-chat";
@@ -103,37 +110,6 @@ export function openGlobalChat() {
 
 export function openGlobalAccessibility() {
   window.dispatchEvent(new Event(GLOBAL_ACCESSIBILITY_EVENT));
-}
-
-function normalizeText(value: string) {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
-}
-
-function hasAny(value: string, keywords: string[]) {
-  return keywords.some((keyword) => value.includes(keyword));
-}
-
-function answerChat(question: string): ChatAnswer {
-  const normalized = normalizeText(question);
-
-  if (hasAny(normalized, ["obrigad", "valeu", "ajudou"])) return { topic: "welcome", text: "Por nada! Se quiser, escolha uma das perguntas sugeridas abaixo para continuar." };
-  if (/^(oi|ola|bom dia|boa tarde|boa noite)[!,. ]*$/.test(normalized)) return { topic: "welcome", text: "Olá! Como posso orientar você hoje? Escolha um assunto abaixo ou escreva sua dúvida." };
-  if (hasAny(normalized, ["horario", "que horas", "funcionamento", "aberto", "atendimento"])) return { topic: "schedule", text: "A escola funciona de segunda a sexta, das 7h às 22h40. A secretaria atende das 8h às 17h. Em feriados, recessos ou datas especiais, confirme os avisos oficiais.", action: { label: "Ver contato e horários", href: "/contato" } };
-  if (hasAny(normalized, ["endereco", "onde fica", "localizacao", "mapa", "como chegar"])) return { topic: "location", text: "A escola fica na Rua Antonio Lombardo, 140, Jardim Santa Terezinha, São Paulo. Na página Contato você encontra o mapa e o atalho para traçar a rota.", action: { label: "Abrir localização", href: "/contato" } };
-  if (hasAny(normalized, ["telefone", "email", "e-mail", "contato", "falar com", "ligar"])) return { topic: "contact", text: "O telefone da escola é (11) 2721-0278 e o e-mail institucional é e043928a@educacao.sp.gov.br. Informações pessoais ou situações específicas devem ser tratadas diretamente com a equipe escolar.", action: { label: "Abrir página de contato", href: "/contato" } };
-  if (hasAny(normalized, ["recomend", "parecido", "similar", "romance", "aventura", "genero de livro"])) return { topic: "recommendations", text: "Na Biblioteca, abra o livro desejado em “Saber mais”. A mini página mostra a sinopse e recomenda títulos relacionados por gênero, categoria e temas em comum.", action: { label: "Explorar livros", href: "/biblioteca" } };
-  if (hasAny(normalized, ["livro", "biblioteca", "reserva", "emprestimo", "fila", "catalogo", "indisponivel"])) return { topic: "library", text: "Na Biblioteca você pode explorar o catálogo, abrir os detalhes de cada livro e solicitar uma reserva. Se não houver exemplar disponível, o pedido entra na fila e a escola acompanha a solicitação.", action: { label: "Abrir Biblioteca", href: "/biblioteca" } };
-  if (hasAny(normalized, ["fundamental", "ensino medio", "eja", "curso", "etapa de ensino", "serie"])) return { topic: "courses", text: "O Portal apresenta o Ensino Fundamental II (6º ao 9º ano), o Ensino Médio e a EJA. Cada opção tem uma página com os objetivos e informações da etapa.", action: { label: "Conhecer os cursos", href: "/cursos" } };
-  if (hasAny(normalized, ["equipe", "joelma", "silas", "marcus", "diretor", "coordenador", "profissional"])) return { topic: "team", text: "Na página Equipe, selecione um profissional para abrir uma mini página com sua função, área de atuação e contribuição para a escola.", action: { label: "Conhecer a equipe", href: "/equipe" } };
-  if (hasAny(normalized, ["aviso", "agenda", "comunicado", "reuniao", "prazo"])) return { topic: "notices", text: "A página Avisos reúne os comunicados oficiais. Ao selecionar um aviso, você abre os detalhes com data, horário, local e orientações completas.", action: { label: "Ver avisos", href: "/avisos" } };
-  if (hasAny(normalized, ["noticia", "enem", "pro-enem", "mutirao"])) return { topic: "news", text: "A área de Notícias reúne novidades e campanhas da escola, incluindo conteúdos do Mutirão Pró-ENEM. Para datas e procedimentos oficiais, confira também os Avisos.", action: { label: "Abrir Notícias", href: "/noticias" } };
-  if (hasAny(normalized, ["interescolar", "campeonato", "esporte", "evento", "volei", "handebol", "xadrez", "basquete", "conquista", "medalha"])) return { topic: "sports", text: "Na página Esportes & Eventos você encontra o Interescolar, modalidades, encontros e conquistas do Duprat. As datas oficiais dos próximos compromissos também podem aparecer em Avisos.", action: { label: "Ver Esportes & Eventos", href: "/esportes-eventos" } };
-  if (hasAny(normalized, ["gestao", "login", "entrar", "perfil", "permissao", "cargo", "secretaria", "professor"])) return { topic: "management", text: "A Área de gestão é exclusiva para profissionais autorizados pela escola. Cada conta é individual e recebe funções conforme o cargo; por exemplo, Secretaria, Direção, Coordenação, Professor e Sala de Leitura veem módulos diferentes.", action: { label: "Abrir Área de gestão", href: "/gestao" } };
-  if (hasAny(normalized, ["segredo", "secreto", "easter egg", "misterio", "mistério"])) return { topic: "secret", text: "Há quem diga que uma passagem responde a um antigo padrão de direções. No final, seriam necessários controle e mudança..." };
-  if (hasAny(normalized, ["acessibilidade", "contraste", "texto grande", "modo noturno", "tema escuro"])) return { topic: "accessibility", text: "Os recursos de acessibilidade ficam no botão “Aa” presente em todas as páginas. É possível ampliar o texto, ativar alto contraste e usar o modo noturno." };
-  if (hasAny(normalized, ["historia", "sobre a escola", "jorge duprat", "estrutura", "quem somos"])) return { topic: "school", text: "Na página A Escola você encontra a apresentação institucional, a história e informações sobre a estrutura do Jorge Duprat Figueiredo.", action: { label: "Conhecer a escola", href: "/escola" } };
-
-  return { topic: "fallback", text: "Ainda não encontrei uma resposta exata para essa pergunta. Posso ajudar com horários, localização, cursos, biblioteca, livros, avisos, notícias, equipe, campeonatos, eventos e acesso da gestão. Para uma situação específica, fale com a secretaria.", action: { label: "Falar com a escola", href: "/contato" } };
 }
 
 function suggestedQuestions(messages: ChatMessage[]) {
@@ -164,7 +140,6 @@ export default function GlobalTools() {
   const [isTyping, setIsTyping] = useState(false);
   const [secretAwake, setSecretAwake] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const replyTimerRef = useRef<number | null>(null);
   const secretSequenceIndexRef = useRef(0);
   const secretTimerRef = useRef<number | null>(null);
 
@@ -239,7 +214,6 @@ export default function GlobalTools() {
   }, [chatMessages, chatOpen, isTyping]);
 
   useEffect(() => () => {
-    if (replyTimerRef.current !== null) window.clearTimeout(replyTimerRef.current);
     if (secretTimerRef.current !== null) window.clearTimeout(secretTimerRef.current);
   }, []);
 
@@ -248,23 +222,48 @@ export default function GlobalTools() {
     submitQuestion(chatInput);
   }
 
-  function submitQuestion(rawQuestion: string) {
+  async function submitQuestion(rawQuestion: string) {
     const question = rawQuestion.trim().slice(0, 300);
     if (!question || isTyping) return;
-    setChatMessages((messages) => [...messages, { from: "user", text: question }].slice(-29));
+    const userMessage: ChatMessage = { from: "user", text: question };
+    const requestMessages = [...chatMessages, userMessage].slice(-12);
+    setChatMessages((messages) => [...messages, userMessage].slice(-29));
     setChatInput("");
     setIsTyping(true);
-    if (replyTimerRef.current !== null) window.clearTimeout(replyTimerRef.current);
-    replyTimerRef.current = window.setTimeout(() => {
-      setChatMessages((messages) => [...messages, { from: "bot", ...answerChat(question) }].slice(-30));
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: requestMessages.map((message) => ({
+            role: message.from === "bot" ? "assistant" : "user",
+            content: message.text,
+          })),
+        }),
+      });
+      const payload = await response.json() as Partial<ChatAnswer> & { error?: string };
+      if (!response.ok) throw new Error(payload.error || "Não foi possível obter uma resposta.");
+      if (typeof payload.text !== "string" || !payload.text.trim()) throw new Error("A resposta chegou vazia.");
+      setChatMessages((messages) => [...messages, {
+        from: "bot",
+        text: payload.text.trim().slice(0, 1400),
+        topic: payload.topic ?? "fallback",
+        action: payload.action,
+      }].slice(-30));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "O assistente está temporariamente indisponível.";
+      setChatMessages((messages) => [...messages, {
+        from: "bot",
+        topic: "fallback",
+        text: message,
+        action: { label: "Falar com a escola", href: "/contato" },
+      }].slice(-30));
+    } finally {
       setIsTyping(false);
-      replyTimerRef.current = null;
-    }, 360);
+    }
   }
 
   function resetChat() {
-    if (replyTimerRef.current !== null) window.clearTimeout(replyTimerRef.current);
-    replyTimerRef.current = null;
     setIsTyping(false);
     setChatInput("");
     setChatMessages([initialMessage]);
@@ -288,7 +287,7 @@ export default function GlobalTools() {
         <aside className="chat-window" aria-label="Assistente virtual DupratBot">
           <header>
             <span className="chat-avatar"><Image src="/assets/mascote-avatar.png" alt="Mascote azul da escola" width={230} height={230} unoptimized /></span>
-            <div><strong>DupratBot</strong><small><i /> Assistente virtual do portal</small></div>
+            <div><strong>DupratBot</strong><small><i /> Assistente escolar com GPT</small></div>
             <span className="chat-header-actions">
               <button type="button" onClick={resetChat} aria-label="Iniciar nova conversa" title="Nova conversa">↻</button>
               <button type="button" onClick={() => setChatOpen(false)} aria-label="Fechar chat" title="Fechar">×</button>
@@ -314,7 +313,7 @@ export default function GlobalTools() {
             <input value={chatInput} maxLength={300} disabled={isTyping} onChange={(event) => setChatInput(event.target.value)} placeholder={isTyping ? "Preparando resposta..." : "Digite sua dúvida..."} aria-label="Mensagem para o DupratBot" />
             <button disabled={isTyping || !chatInput.trim()} aria-label="Enviar mensagem">➤</button>
           </form>
-          <small className="chat-note">Conversa mantida apenas nesta sessão. Confirme informações importantes com a secretaria.</small>
+          <small className="chat-note">Respostas geradas por IA. Não envie dados pessoais e confirme informações importantes com a secretaria.</small>
         </aside>
       )}
 
