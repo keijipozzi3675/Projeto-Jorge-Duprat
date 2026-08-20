@@ -12,7 +12,7 @@
 
 ## Antes de usar com dados reais
 
-- Implantar allowlist institucional e perfis no banco.
+- Revisar periodicamente a lista institucional de contas e os perfis já implantados no banco.
 - Adicionar proteção contra abuso e limitação de requisições.
 - Definir prazos de retenção e rotina de exclusão de dados.
 - Revisar LGPD, consentimento e aviso de privacidade com a direção.

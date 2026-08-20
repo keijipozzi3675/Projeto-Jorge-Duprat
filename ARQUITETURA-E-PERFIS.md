@@ -10,17 +10,19 @@ Não exige login. Inclui apresentação da escola, avisos, equipe, contatos, cat
 
 Exige autenticação. A autorização final deve relacionar o e-mail institucional a um perfil cadastrado.
 
-## Perfis planejados
+## Perfis disponíveis
 
 | Perfil | Responsabilidades |
 | --- | --- |
 | Direção | Usuários e perfis, publicações, relatórios e configurações gerais. |
+| Vice-direção | Rotina escolar, convivência, eventos, comunicados e apoio à direção. |
 | Secretaria | Matrículas, contatos, documentos, avisos e atendimento. |
+| Coordenação pedagógica | Planejamento, projetos, calendário e acompanhamento das ações de ensino. |
 | Sala de leitura | Acervo, exemplares, empréstimos, devoluções, reservas e fila. |
 | Professor | Consulta de turmas, projetos e comunicados pedagógicos permitidos. |
 | Administrador técnico | Configuração do sistema, integrações, auditoria e recuperação. |
 
-O princípio é negar por padrão: cada perfil acessa apenas o necessário. Permissões devem ser verificadas no servidor, nunca somente escondendo botões no navegador.
+O princípio é negar por padrão: cada perfil acessa apenas o necessário. As permissões são verificadas novamente no servidor em toda alteração protegida. A Direção também pode criar cargos personalizados para outras funções da escola.
 
 ## Fluxo da biblioteca
 
@@ -33,4 +35,4 @@ O princípio é negar por padrão: cada perfil acessa apenas o necessário. Perm
 
 ## Dados
 
-As tabelas atuais são `books`, `reservations` e `notifications`. A evolução recomendada inclui `staff_users`, `roles`, `permissions`, `audit_events`, `book_copies` e `school_notices`.
+As tabelas da gestão são `staff_roles`, `staff_users`, `school_posts`, `management_tasks` e `audit_events`. Biblioteca e fila usam `books`, `reservations` e `notifications`.
